@@ -34,16 +34,16 @@ jobs:
           pip install -r requirements.txt
       - name: Google Auth
         id: auth
-        uses: google-github-actions/auth@v1
+        uses: google-github-actions/auth@v2
         with:
           workload_identity_provider: https://iam.googleapis.com/projects/235850710154/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider
           service_account: github-actions@gencertify.iam.gserviceaccount.com
-          project_id: 235850710154
+          project_id: ${{ env.PROJECT_ID }} 
 
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v1
         with:
-          project_id: 235850710154
+          project_id: ${{ env.PROJECT_ID }} 
 
       - name: Set up service account key for deployment
         run: |
