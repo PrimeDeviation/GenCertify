@@ -9,7 +9,6 @@ env:
   PROJECT_ID: gencertify
   SERVICE_NAME: gencertify
   REGION: us-central1
-  IMAGE: gcr.io/gencertify/gencertify
 
 jobs:
   deploy:
@@ -23,46 +22,51 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Service Account Key
-        run: |
-          echo '${{ secrets.GCP_SA_KEY }}' > sa-key.json
-          echo "GOOGLE_APPLICATION_CREDENTIALS=sa-key.json" >> $GITHUB_ENV
+      # Standard authentication using service account key
+      - name: Google Auth
+        id: auth
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+          project_id: ${{ env.PROJECT_ID }}
 
-      - name: Install Google Cloud SDK
-        run: |
-          curl -O https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-454.0.0-linux-x86_64.tar.gz
-          tar -xf google-cloud-cli-454.0.0-linux-x86_64.tar.gz
-          ./google-cloud-sdk/install.sh --quiet
-          echo "$PWD/google-cloud-sdk/bin" >> $GITHUB_PATH
+      # Set up gcloud CLI
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          project_id: ${{ env.PROJECT_ID }}
 
-      - name: Build and push Docker image
-        run: |
-          # Configure Docker to use gcloud as a credential helper
-          gcloud auth configure-docker --quiet
-          
-          # Build the container image
-          docker build -t ${{ env.IMAGE }}:${{ github.sha }} .
-          
-          # Push the container image to Container Registry
-          docker push ${{ env.IMAGE }}:${{ github.sha }}
-        
+      # Deploy to Cloud Run using the deploy-cloudrun action
       - name: Deploy to Cloud Run
-        run: |
-          gcloud run deploy ${{ env.SERVICE_NAME }} \
-            --image ${{ env.IMAGE }}:${{ github.sha }} \
-            --platform managed \
-            --region ${{ env.REGION }} \
-            --allow-unauthenticated \
-            --set-env-vars="APP_NAME=GenCertify,ENVIRONMENT=production,DEBUG=False,LOG_LEVEL=INFO,LOG_FILE=logs/app.log,API_HOST=0.0.0.0,API_PORT=8080,GOOGLE_CLOUD_PROJECT=${{ env.PROJECT_ID }},GOOGLE_CLOUD_REGION=${{ env.REGION }},FIRESTORE_COLLECTION_USERS=users,FIRESTORE_COLLECTION_CERTIFICATIONS=certifications,FIRESTORE_COLLECTION_EVALUATIONS=evaluations,FIRESTORE_COLLECTION_DOCUMENTS=documents,STORAGE_BUCKET_NAME=${{ env.PROJECT_ID }}-bucket,OPENAI_MODEL=gpt-4o,ANTHROPIC_MODEL=claude-3.7-sonnet,VERTEX_AI_LOCATION=${{ env.REGION }},VERTEX_AI_MODEL_ID=text-bison@001" \
-            --set-secrets="OPENAI_API_KEY=openai-api-key:latest,ANTHROPIC_API_KEY=anthropic-api-key:latest"
+        id: deploy
+        uses: google-github-actions/deploy-cloudrun@v1
+        with:
+          service: ${{ env.SERVICE_NAME }}
+          region: ${{ env.REGION }}
+          source: .
+          env_vars: |
+            APP_NAME=GenCertify
+            ENVIRONMENT=production
+            DEBUG=False
+            LOG_LEVEL=INFO
+            LOG_FILE=logs/app.log
+            API_HOST=0.0.0.0
+            API_PORT=8080
+            GOOGLE_CLOUD_PROJECT=${{ env.PROJECT_ID }}
+            GOOGLE_CLOUD_REGION=${{ env.REGION }}
+            FIRESTORE_COLLECTION_USERS=users
+            FIRESTORE_COLLECTION_CERTIFICATIONS=certifications
+            FIRESTORE_COLLECTION_EVALUATIONS=evaluations
+            FIRESTORE_COLLECTION_DOCUMENTS=documents
+            STORAGE_BUCKET_NAME=${{ env.PROJECT_ID }}-bucket
+            OPENAI_MODEL=gpt-4o
+            ANTHROPIC_MODEL=claude-3.7-sonnet
+            VERTEX_AI_LOCATION=${{ env.REGION }}
+            VERTEX_AI_MODEL_ID=text-bison@001
+          secrets: |
+            OPENAI_API_KEY=openai-api-key:latest
+            ANTHROPIC_API_KEY=anthropic-api-key:latest
 
-      - name: Show URL
-        run: |
-          echo "Deployed to: $(gcloud run services describe ${{ env.SERVICE_NAME }} --region ${{ env.REGION }} --format='value(status.url)')"
-          
-      - name: Clean up credentials
-        if: always()
-        run: |
-          if [ -f sa-key.json ]; then
-            rm sa-key.json
-          fi
+      # Show the deployed URL
+      - name: Show Output
+        run: echo ${{ steps.deploy.outputs.url }}
