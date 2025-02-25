@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}GenCertify - AI-Powered Certification Readiness{% endblock %}</title>
     
+    <!-- Base URL for all relative URLs -->
+    <base href="https://{{ request.headers.get('host', '') }}/">
+    
     <!-- Favicon -->
     <link rel="icon" href="{{ url_for('static', path='img/favicon.svg') }}" type="image/svg+xml">
     
