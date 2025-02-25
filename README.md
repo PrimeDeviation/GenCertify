@@ -25,7 +25,7 @@ A Certification Readiness and Document Drafting Tool that evaluates a startup's 
 
 Check out the live demo at: https://gencertify-235850710154.us-central1.run.app/
 
-The application is automatically deployed using GitHub Actions whenever changes are pushed to the master branch. This CI/CD pipeline ensures the latest code is always available in production. Changes are typically deployed within 3-5 minutes of being pushed to the repository.
+The application is automatically deployed using GitHub Actions whenever changes are pushed to the master branch. This CI/CD pipeline ensures the latest code is always available in production. Changes are typically deployed within 2-4 minutes of being pushed to the repository.
 
 ### Deployment Architecture
 
