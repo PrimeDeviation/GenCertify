@@ -25,6 +25,8 @@ A Certification Readiness and Document Drafting Tool that evaluates a startup's 
 
 Check out the live demo at: https://gencertify-235850710154.us-central1.run.app/
 
+The application is automatically deployed using GitHub Actions whenever changes are pushed to the master branch.
+
 ## Setup
 
 ### Prerequisites
