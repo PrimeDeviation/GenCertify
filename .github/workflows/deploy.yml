@@ -22,12 +22,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Standard authentication using service account key
+      # Authentication using Workload Identity Federation
       - name: Google Auth
         id: auth
         uses: google-github-actions/auth@v1
         with:
-          credentials_json: ${{ secrets.GCP_SA_KEY }}
+          workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
+          service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
           project_id: ${{ env.PROJECT_ID }}
 
       # Set up gcloud CLI
