@@ -14,64 +14,62 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
 
-    # These permissions are required for Workload Identity Federation
     permissions:
       contents: 'read'
       id-token: 'write'
 
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      # Authenticate to Google Cloud using Workload Identity Federation
-      - id: auth
-        name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v2
+      - name: Set up Python
+        uses: actions/setup-python@v4
         with:
-          # Using an explicit token format to avoid ambiguity
-          token_format: 'access_token'
-          # Using your existing Workload Identity Federation provider
-          workload_identity_provider: 'projects/235850710154/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider'
-          # Using the compute service account that's already configured with WIF
-          service_account: '235850710154-compute@developer.gserviceaccount.com'
-          project_id: ${{ env.PROJECT_ID }}
+          python-version: '3.10'
+          cache: 'pip'
 
-      # Set up gcloud CLI
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Google Auth
+        id: auth
+        uses: google-github-actions/auth@v1
+        with:
+          workload_identity_provider: https://iam.googleapis.com/projects/235850710154/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider
+          service_account: github-actions@gencertify.iam.gserviceaccount.com
+          project_id: 235850710154
+
       - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v2
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          project_id: 235850710154
 
-      # Deploy to Cloud Run using source-based deployment (matches your working manual command)
+      - name: Set up service account key for deployment
+        run: |
+          echo '${{ secrets.GCP_SA_KEY }}' > sa-key.json
+          export GOOGLE_APPLICATION_CREDENTIALS=sa-key.json
+      
       - name: Deploy to Cloud Run
         id: deploy
-        uses: google-github-actions/deploy-cloudrun@v2
-        with:
-          service: ${{ env.SERVICE_NAME }}
-          region: ${{ env.REGION }}
-          source: .
-          env_vars: |
-            APP_NAME=GenCertify
-            ENVIRONMENT=production
-            DEBUG=False
-            LOG_LEVEL=INFO
-            LOG_FILE=logs/app.log
-            API_HOST=0.0.0.0
-            API_PORT=8080
-            GOOGLE_CLOUD_PROJECT=${{ env.PROJECT_ID }}
-            GOOGLE_CLOUD_REGION=${{ env.REGION }}
-            FIRESTORE_COLLECTION_USERS=users
-            FIRESTORE_COLLECTION_CERTIFICATIONS=certifications
-            FIRESTORE_COLLECTION_EVALUATIONS=evaluations
-            FIRESTORE_COLLECTION_DOCUMENTS=documents
-            STORAGE_BUCKET_NAME=${{ env.PROJECT_ID }}-bucket
-            OPENAI_MODEL=gpt-4o
-            ANTHROPIC_MODEL=claude-3.7-sonnet
-            VERTEX_AI_LOCATION=${{ env.REGION }}
-            VERTEX_AI_MODEL_ID=text-bison@001
-          secrets: |
-            OPENAI_API_KEY=openai-api-key:latest
-            ANTHROPIC_API_KEY=anthropic-api-key:latest
-
-      # Display deployed service URL
-      - name: Display Service URL
         run: |
-          echo "Service URL: ${{ steps.deploy.outputs.url }}"
+          gcloud run deploy ${{ env.SERVICE_NAME }} \
+            --source . \
+            --platform managed \
+            --region ${{ env.REGION }} \
+            --set-env-vars="APP_NAME=GenCertify,ENVIRONMENT=production,DEBUG=False,LOG_LEVEL=INFO,LOG_FILE=logs/app.log,API_HOST=0.0.0.0,API_PORT=8080,GOOGLE_CLOUD_PROJECT=${{ env.PROJECT_ID }},GOOGLE_CLOUD_REGION=${{ env.REGION }},FIRESTORE_COLLECTION_USERS=users,FIRESTORE_COLLECTION_CERTIFICATIONS=certifications,FIRESTORE_COLLECTION_EVALUATIONS=evaluations,FIRESTORE_COLLECTION_DOCUMENTS=documents,STORAGE_BUCKET_NAME=${{ env.PROJECT_ID }}-bucket,OPENAI_MODEL=gpt-4o,ANTHROPIC_MODEL=claude-3.7-sonnet,VERTEX_AI_LOCATION=${{ env.REGION }},VERTEX_AI_MODEL_ID=text-bison@001" \
+            --set-secrets="OPENAI_API_KEY=openai-api-key:latest,ANTHROPIC_API_KEY=anthropic-api-key:latest" \
+            --port=8080
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: sa-key.json
+
+      - name: Show URL
+        run: |
+          echo "Deployed to: $(gcloud run services describe ${{ env.SERVICE_NAME }} --region ${{ env.REGION }} --format='value(status.url)')"
+          
+      - name: Clean up credentials
+        if: always()
+        run: |
+          if [ -f sa-key.json ]; then
+            rm sa-key.json
+          fi
