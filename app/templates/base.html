@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-bs-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -22,14 +22,20 @@
     
     {% block extra_css %}{% endblock %}
 </head>
-<body>
-    <header class="bg-white py-3 mb-4">
-        <div class="container">
+<body class="d-flex flex-column vh-100">
+    <header class="bg-white py-2 border-bottom">
+        <div class="container-fluid">
             <div class="d-flex align-items-center justify-content-between">
                 <a href="/" class="d-flex align-items-center text-decoration-none">
                     <img src="{{ url_for('static', path='img/logo.svg') }}" alt="GenCertify Logo" height="40">
                 </a>
                 <div>
+                    <button id="theme-toggle" class="btn btn-outline-secondary me-2" title="Toggle dark/light mode">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <a href="#settings-section" id="settings-btn" class="btn btn-outline-secondary me-2" data-section="settings-section">
+                        <i class="fas fa-cog"></i> Settings
+                    </a>
                     <button id="help-btn" class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#helpModal">
                         <i class="fas fa-question-circle"></i> Help
                     </button>
@@ -41,26 +47,77 @@
         </div>
     </header>
     
-    <main class="container mb-5">
-        <div class="alert-container position-fixed top-0 end-0 p-3" style="z-index: 1050;"></div>
-        
-        {% block content %}{% endblock %}
-    </main>
-    
-    <footer class="bg-white py-4 mt-5">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-6">
-                    <p class="mb-0">&copy; 2023 GenCertify. All rights reserved.</p>
-                </div>
-                <div class="col-md-6 text-md-end">
-                    <a href="/privacy" class="text-muted me-3">Privacy Policy</a>
-                    <a href="/terms" class="text-muted me-3">Terms of Service</a>
-                    <a href="/contact" class="text-muted">Contact Us</a>
+    <div class="container-fluid flex-grow-1 d-flex p-0">
+        <!-- Left Navigation Sidebar -->
+        <nav id="sidebar" class="bg-light border-end p-3" style="width: 250px; min-height: 100%;">
+            <div class="position-sticky">
+                <ul class="nav flex-column">
+                    <li class="nav-item mb-2">
+                        <a href="#organization-section" class="nav-link active" data-section="organization-section">
+                            <i class="fas fa-building me-2"></i> Organization
+                        </a>
+                    </li>
+                    <li class="nav-item mb-2">
+                        <a href="#documents-section" class="nav-link" data-section="documents-section">
+                            <i class="fas fa-file-upload me-2"></i> Documents
+                        </a>
+                    </li>
+                    <li class="nav-item mb-2">
+                        <a href="#certifications-section" class="nav-link" data-section="certifications-section">
+                            <i class="fas fa-certificate me-2"></i> Certifications
+                        </a>
+                    </li>
+                    <li class="nav-item mb-2">
+                        <a href="#evaluation-section" class="nav-link" data-section="evaluation-section">
+                            <i class="fas fa-tasks me-2"></i> Evaluation
+                        </a>
+                    </li>
+                    <li class="nav-item mb-2">
+                        <a href="#results-section" class="nav-link" data-section="results-section">
+                            <i class="fas fa-chart-bar me-2"></i> Results
+                        </a>
+                    </li>
+                    <li class="nav-item mb-2">
+                        <a href="#settings-section" class="nav-link" data-section="settings-section">
+                            <i class="fas fa-cog me-2"></i> Settings
+                        </a>
+                    </li>
+                </ul>
+                
+                <hr>
+                
+                <div class="sidebar-footer">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-muted small">Current Model:</span>
+                        <span class="badge bg-primary" id="current-model">GPT-4o</span>
+                    </div>
+                    <div class="progress mt-2" style="height: 5px;">
+                        <div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
                 </div>
             </div>
-        </div>
-    </footer>
+        </nav>
+        
+        <!-- Main Content Area -->
+        <main class="flex-grow-1 d-flex flex-column">
+            <div class="alert-container position-fixed top-0 end-0 p-3" style="z-index: 1050;"></div>
+            
+            <!-- Content Sections -->
+            <div class="content-container flex-grow-1 p-3 overflow-auto">
+                {% block content %}{% endblock %}
+            </div>
+            
+            <!-- Chat Input Area -->
+            <div class="chat-input-container p-3 border-top bg-light">
+                <form id="chat-form" class="d-flex">
+                    <input type="text" id="chat-input" class="form-control me-2" placeholder="Ask about the current section..." aria-label="Chat message">
+                    <button class="btn btn-primary" type="submit">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </form>
+            </div>
+        </main>
+    </div>
     
     <!-- Help Modal -->
     <div class="modal fade" id="helpModal" tabindex="-1" aria-labelledby="helpModalLabel" aria-hidden="true">
@@ -81,32 +138,39 @@
                         </div>
                         <div class="col-md-6">
                             <h6><i class="fas fa-certificate text-primary me-2"></i> Step 2: Select Certifications</h6>
-                            <p>Choose the certifications you're interested in pursuing for your organization.</p>
+                            <p>Choose the certifications you're interested in pursuing.</p>
                         </div>
                     </div>
                     <div class="row mb-4">
                         <div class="col-md-6">
                             <h6><i class="fas fa-file-upload text-primary me-2"></i> Step 3: Upload Documents</h6>
-                            <p>Upload your existing policies, procedures, and documentation for analysis.</p>
+                            <p>Upload your existing policies, procedures, and other relevant documents.</p>
                         </div>
                         <div class="col-md-6">
-                            <h6><i class="fas fa-comments text-primary me-2"></i> Step 4: Chat with Assistant</h6>
-                            <p>Ask questions and get guidance from our AI assistant about certification requirements.</p>
+                            <h6><i class="fas fa-tasks text-primary me-2"></i> Step 4: Run Evaluation</h6>
+                            <p>Let our AI analyze your documents and assess your certification readiness.</p>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-6">
-                            <h6><i class="fas fa-tasks text-primary me-2"></i> Step 5: Run Evaluation</h6>
-                            <p>Analyze your readiness for selected certifications based on your documentation.</p>
+                            <h6><i class="fas fa-chart-bar text-primary me-2"></i> Step 5: Review Results</h6>
+                            <p>Review your readiness assessment and identify gaps in your compliance.</p>
                         </div>
                         <div class="col-md-6">
                             <h6><i class="fas fa-file-alt text-primary me-2"></i> Step 6: Generate Documents</h6>
-                            <p>Create compliance documents based on evaluation results and certification requirements.</p>
+                            <p>Generate compliance documents tailored to your organization's needs.</p>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-12">
+                            <h6><i class="fas fa-comments text-primary me-2"></i> Chat Assistant</h6>
+                            <p>Use the chat input at the bottom of the screen to ask questions about the current section or get help with your certification journey.</p>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Got it!</button>
                 </div>
             </div>
         </div>
@@ -115,8 +179,121 @@
     <!-- Bootstrap JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
-    <!-- Custom JS -->
-    <script src="{{ url_for('static', path='js/main.js') }}"></script>
+    <!-- Custom JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Theme toggle functionality
+            const themeToggleBtn = document.getElementById('theme-toggle');
+            const themeIcon = themeToggleBtn.querySelector('i');
+            const htmlElement = document.documentElement;
+            
+            // Check for saved theme preference or use preferred color scheme
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                htmlElement.setAttribute('data-bs-theme', savedTheme);
+                updateThemeIcon(savedTheme);
+            } else {
+                // Check for system preference
+                const prefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                const initialTheme = prefersDarkMode ? 'dark' : 'light';
+                htmlElement.setAttribute('data-bs-theme', initialTheme);
+                updateThemeIcon(initialTheme);
+            }
+            
+            // Toggle theme when button is clicked
+            themeToggleBtn.addEventListener('click', function() {
+                const currentTheme = htmlElement.getAttribute('data-bs-theme');
+                const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+                
+                htmlElement.setAttribute('data-bs-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+                updateThemeIcon(newTheme);
+            });
+            
+            function updateThemeIcon(theme) {
+                if (theme === 'dark') {
+                    themeIcon.classList.remove('fa-moon');
+                    themeIcon.classList.add('fa-sun');
+                } else {
+                    themeIcon.classList.remove('fa-sun');
+                    themeIcon.classList.add('fa-moon');
+                }
+            }
+            
+            // Section navigation
+            const navLinks = document.querySelectorAll('.nav-link, [data-section]');
+            const contentSections = document.querySelectorAll('.content-section');
+            
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Get the target section ID
+                    const targetSectionId = this.getAttribute('data-section') || this.getAttribute('href').substring(1);
+                    
+                    // Hide all sections
+                    contentSections.forEach(section => {
+                        section.classList.add('d-none');
+                    });
+                    
+                    // Show the target section
+                    const targetSection = document.getElementById(targetSectionId);
+                    if (targetSection) {
+                        targetSection.classList.remove('d-none');
+                    }
+                    
+                    // Update active state in sidebar
+                    navLinks.forEach(navLink => {
+                        navLink.classList.remove('active');
+                    });
+                    
+                    // Find and activate the corresponding sidebar link
+                    document.querySelectorAll(`[data-section="${targetSectionId}"]`).forEach(sidebarLink => {
+                        sidebarLink.classList.add('active');
+                    });
+                    
+                    // Update the URL hash
+                    window.location.hash = targetSectionId;
+                });
+            });
+            
+            // Alert function
+            function showAlert(message, type = 'info') {
+                const alertContainer = document.querySelector('.alert-container');
+                const alertElement = document.createElement('div');
+                alertElement.className = `alert alert-${type} alert-dismissible fade show`;
+                alertElement.innerHTML = `
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                `;
+                
+                alertContainer.appendChild(alertElement);
+                
+                // Auto-dismiss after 5 seconds
+                setTimeout(() => {
+                    alertElement.classList.remove('show');
+                    setTimeout(() => {
+                        alertElement.remove();
+                    }, 150);
+                }, 5000);
+            }
+            
+            // Check URL hash on page load
+            if (window.location.hash) {
+                const targetSectionId = window.location.hash.substring(1);
+                const targetLink = document.querySelector(`[data-section="${targetSectionId}"]`);
+                if (targetLink) {
+                    targetLink.click();
+                } else {
+                    // Default to first section
+                    navLinks[0].click();
+                }
+            } else {
+                // Default to first section
+                navLinks[0].click();
+            }
+        });
+    </script>
     
     {% block extra_js %}{% endblock %}
 </body>
