@@ -38,7 +38,7 @@ jobs:
         with:
           workload_identity_provider: projects/235850710154/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider-new
           service_account: github-actions@gencertify.iam.gserviceaccount.com
-          # Added Artifact Registry permissions
+          # Added workload identity binding for repository
           project_id: ${{ env.PROJECT_ID }}
 
       - name: Set up Cloud SDK
