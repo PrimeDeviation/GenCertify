@@ -6,7 +6,7 @@ on:
       - master
 
 env:
-  PROJECT_ID: gencertify
+  PROJECT_ID: 235850710154
   SERVICE_NAME: gencertify
   REGION: us-central1
 
