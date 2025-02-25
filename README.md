@@ -35,6 +35,7 @@ The application uses Workload Identity Federation to securely authenticate GitHu
 2. Establishing identity-based trust between GitHub Actions and GCP
 3. Following the principle of least privilege
 4. Enabling fine-grained access control
+5. Respecting organization-level security policies
 
 ## Setup
 
