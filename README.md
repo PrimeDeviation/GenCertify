@@ -27,6 +27,14 @@ Check out the live demo at: https://gencertify-235850710154.us-central1.run.app/
 
 The application is automatically deployed using GitHub Actions whenever changes are pushed to the master branch. This CI/CD pipeline ensures the latest code is always available in production.
 
+### Deployment Architecture
+
+The application uses Workload Identity Federation to securely authenticate GitHub Actions with Google Cloud Platform. This modern approach eliminates the need for storing service account keys in GitHub Secrets and improves security by:
+
+1. Using short-lived credentials
+2. Establishing identity-based trust between GitHub Actions and GCP
+3. Following the principle of least privilege
+
 ## Setup
 
 ### Prerequisites
