@@ -32,8 +32,8 @@ jobs:
           token_format: 'access_token'
           # Using your existing Workload Identity Federation provider
           workload_identity_provider: 'projects/235850710154/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider'
-          # Using the GitHub Actions service account that's already configured
-          service_account: 'github-actions@gencertify.iam.gserviceaccount.com'
+          # Using the compute service account that's already configured with WIF
+          service_account: '235850710154-compute@developer.gserviceaccount.com'
           project_id: ${{ env.PROJECT_ID }}
 
       # Set up gcloud CLI
