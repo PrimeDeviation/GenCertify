@@ -2,6 +2,10 @@
 
 A Certification Readiness and Document Drafting Tool that evaluates a startup's preparedness for key certifications (e.g., ISO 27001, SOC 2, GDPR, etc.) and generates tailored compliance documents using Generative AI.
 
+## Overview
+
+GenCertify helps startups navigate the complex certification landscape by automating document analysis, readiness evaluation, and compliance document generation. Using AI, we make the certification process simpler, faster, and more accessible.
+
 ## Features
 
 - **Static Input Module**: Collect organizational details, certification preferences, and document uploads
