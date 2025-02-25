@@ -51,6 +51,14 @@ document.addEventListener('DOMContentLoaded', function() {
     // Theme Toggle
     const themeToggle = document.getElementById('theme-toggle');
     
+    // Sidebar Resizer
+    const sidebar = document.getElementById('sidebar');
+    const sidebarResizer = document.getElementById('sidebar-resizer');
+    let isResizing = false;
+    
+    // Model Interaction
+    const modelInteractionContent = document.getElementById('model-interaction-content');
+    
     // Event Listeners
     if (orgForm) {
         orgForm.addEventListener('submit', handleOrganizationSubmit);
@@ -250,6 +258,63 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
+    // Add event listeners for sidebar resizing
+    if (sidebarResizer) {
+        sidebarResizer.addEventListener('mousedown', initResize);
+        document.addEventListener('mousemove', resize);
+        document.addEventListener('mouseup', stopResize);
+        
+        // Touch support for mobile
+        sidebarResizer.addEventListener('touchstart', initResize);
+        document.addEventListener('touchmove', resize);
+        document.addEventListener('touchend', stopResize);
+    }
+    
+    function initResize(e) {
+        isResizing = true;
+        document.body.style.cursor = 'col-resize';
+        document.body.style.userSelect = 'none';
+        
+        // Prevent text selection during resize
+        e.preventDefault();
+    }
+    
+    function resize(e) {
+        if (!isResizing) return;
+        
+        let clientX;
+        
+        // Check if it's a touch event or mouse event
+        if (e.type === 'touchmove') {
+            clientX = e.touches[0].clientX;
+        } else {
+            clientX = e.clientX;
+        }
+        
+        // Set minimum and maximum width
+        const minWidth = 150;
+        const maxWidth = window.innerWidth / 2;
+        
+        // Calculate new width
+        let newWidth = clientX;
+        
+        // Apply constraints
+        if (newWidth < minWidth) newWidth = minWidth;
+        if (newWidth > maxWidth) newWidth = maxWidth;
+        
+        // Apply new width
+        sidebar.style.width = newWidth + 'px';
+        
+        // Save the width preference
+        localStorage.setItem('sidebarWidth', newWidth);
+    }
+    
+    function stopResize() {
+        isResizing = false;
+        document.body.style.cursor = '';
+        document.body.style.userSelect = '';
+    }
+    
     // Organization Form Handler
     async function handleOrganizationSubmit(e) {
         e.preventDefault();
@@ -355,12 +420,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const message = chatInput.value.trim();
         if (!message) return;
         
-        // Get current active section
-        const activeSection = document.querySelector('.content-section:not(.d-none)');
-        const sectionId = activeSection ? activeSection.id : null;
-        const sectionName = document.querySelector('.nav-link.active') ? 
-                           document.querySelector('.nav-link.active').textContent.trim() : 
-                           'General';
+        // Get the active section
+        const activeSection = Array.from(sections).find(section => !section.classList.contains('d-none'));
+        const activeSectionId = activeSection ? activeSection.id : null;
         
         // Add user message to chat
         addMessageToChat('user', message);
@@ -368,74 +430,74 @@ document.addEventListener('DOMContentLoaded', function() {
         // Clear input
         chatInput.value = '';
         
+        // Show typing indicator in model interaction area
+        showModelTypingIndicator();
+        
         try {
-            // Show typing indicator
-            const typingIndicator = document.createElement('div');
-            typingIndicator.className = 'chat-message system-message typing-indicator';
-            typingIndicator.innerHTML = '<div class="message-content"><p>AI is typing...</p></div>';
-            chatMessages.appendChild(typingIndicator);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
+            // Simulate API call to get model response
+            // In a real implementation, this would be an actual API call to your backend
+            const response = await simulateModelResponse(message, activeSectionId);
             
-            // Get selected model from settings
-            const selectedModel = document.getElementById('ai-model') ? 
-                                 document.getElementById('ai-model').value : 
-                                 'gpt-4o';
+            // Display model response in the model interaction area
+            updateModelInteraction(response);
             
-            // In a real app, you would send the message to your backend API
-            // For demo purposes, we'll simulate a response
-            const context = {
-                section: sectionId,
-                sectionName: sectionName,
-                model: selectedModel
-            };
-            
-            console.log('Sending chat message with context:', context);
-            
-            // Simulate API delay
-            await new Promise(resolve => setTimeout(resolve, 1500));
-            
-            // Remove typing indicator
-            document.querySelector('.typing-indicator').remove();
-            
-            // Generate a contextual response based on the current section
-            let response;
-            switch(sectionId) {
-                case 'organization-section':
-                    response = "I can help you with your organization details. You can provide information about your company structure, policies, and compliance requirements here.";
-                    break;
-                case 'documents-section':
-                    response = "This is where you can upload and manage your compliance documents. What type of documents would you like to work with?";
-                    break;
-                case 'certifications-section':
-                    response = "I can assist with certification requirements. Would you like information about specific compliance frameworks like ISO 27001, SOC 2, or GDPR?";
-                    break;
-                case 'evaluation-section':
-                    response = "In the evaluation section, we can assess your current compliance status against selected frameworks. Would you like to start an evaluation?";
-                    break;
-                case 'results-section':
-                    response = "Here you can review your compliance results and generated documents. Is there a specific report you'd like to analyze?";
-                    break;
-                case 'settings-section':
-                    response = "I can help you configure your settings. Would you like assistance with AI model configuration, integrations, or account settings?";
-                    break;
-                default:
-                    response = "I'm here to help with your compliance needs. What would you like to know about GenCertify?";
-            }
-            
-            // Add AI response to chat
-            addMessageToChat('ai', response);
-            
+            // Also add the response to the chat
+            addMessageToChat('assistant', response);
         } catch (error) {
-            console.error('Error sending message:', error);
+            console.error('Error getting model response:', error);
+            updateModelInteraction('Sorry, there was an error processing your request.');
+            addMessageToChat('system', 'Sorry, there was an error processing your request.');
+        }
+    }
+    
+    // Function to show typing indicator in model interaction area
+    function showModelTypingIndicator() {
+        if (modelInteractionContent) {
+            modelInteractionContent.innerHTML = '<div class="typing-indicator"><span></span><span></span><span></span></div>';
+        }
+    }
+    
+    // Function to update model interaction area with response
+    function updateModelInteraction(content) {
+        if (modelInteractionContent) {
+            // Clear any existing content
+            modelInteractionContent.innerHTML = '';
             
-            // Remove typing indicator if it exists
-            const typingIndicator = document.querySelector('.typing-indicator');
-            if (typingIndicator) {
-                typingIndicator.remove();
-            }
+            // Add the new content
+            const contentElement = document.createElement('div');
+            contentElement.className = 'model-response';
+            contentElement.textContent = content;
             
-            // Show error message
-            addMessageToChat('system', 'Sorry, there was an error processing your request. Please try again.');
+            modelInteractionContent.appendChild(contentElement);
+            
+            // Scroll to the bottom of the content
+            modelInteractionContent.scrollTop = modelInteractionContent.scrollHeight;
+        }
+    }
+    
+    // Function to simulate model response (replace with actual API call in production)
+    async function simulateModelResponse(message, context) {
+        // Simulate network delay
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        
+        // Simple response logic based on context and message
+        // In a real implementation, this would be replaced with an actual API call
+        if (message.toLowerCase().includes('hello') || message.toLowerCase().includes('hi')) {
+            return `Hello! I'm your AI assistant. How can I help you with the ${context || 'current'} section?`;
+        } else if (context === 'organization-section') {
+            return `I see you're working on your organization details. Would you like help filling out this section?`;
+        } else if (context === 'certification-section') {
+            return `I can help you select the right certifications for your organization. What industry are you in?`;
+        } else if (context === 'document-section') {
+            return `I can help you organize and upload your documents. What type of documents do you need help with?`;
+        } else if (context === 'evaluation-section') {
+            return `I can analyze your documents and provide an evaluation of your certification readiness. Would you like to start an evaluation?`;
+        } else if (context === 'results-section') {
+            return `I can help you interpret your evaluation results and suggest next steps for certification.`;
+        } else if (context === 'settings-section') {
+            return `I can help you configure your settings. What specific settings are you interested in adjusting?`;
+        } else {
+            return `I'm here to help with your certification journey. What specific questions do you have about ${context || 'the current section'}?`;
         }
     }
     
@@ -1022,42 +1084,83 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // Initialize the app
+    // Initialize the application
     function initApp() {
-        // Set the first nav link as active by default
-        if (navLinks.length > 0) {
-            navLinks[0].click();
+        // Check for saved sidebar width
+        const savedSidebarWidth = localStorage.getItem('sidebarWidth');
+        if (savedSidebarWidth) {
+            sidebar.style.width = savedSidebarWidth;
         }
         
-        // Initialize theme from localStorage
-        const savedTheme = localStorage.getItem('theme') || 'light';
-        document.documentElement.setAttribute('data-bs-theme', savedTheme);
-        
-        // Update theme toggle button icon
-        const themeToggle = document.getElementById('theme-toggle');
-        if (themeToggle) {
-            themeToggle.innerHTML = savedTheme === 'dark' ? 
-                '<i class="fas fa-sun"></i>' : 
-                '<i class="fas fa-moon"></i>';
+        // Initialize sidebar resizer
+        if (sidebarResizer) {
+            sidebarResizer.addEventListener('mousedown', initResize);
+            document.addEventListener('mousemove', resize);
+            document.addEventListener('mouseup', stopResize);
         }
         
-        // Initialize AI model from localStorage
-        const savedModel = localStorage.getItem('aiModel');
-        const modelSelect = document.getElementById('ai-model');
-        if (savedModel && modelSelect) {
-            modelSelect.value = savedModel;
+        // Initialize document visibility
+        updateDocumentsVisibility();
+        
+        // Add event listeners for document form
+        if (documentUploadForm) {
+            documentUploadForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                handleDocumentUpload(e);
+                updateDocumentsVisibility();
+            });
         }
         
-        // Initialize temperature from localStorage
-        const savedTemp = localStorage.getItem('temperature');
-        const tempRange = document.getElementById('temperature-range');
-        const tempValue = document.getElementById('temperature-value');
-        if (savedTemp && tempRange && tempValue) {
-            tempRange.value = savedTemp;
-            tempValue.textContent = savedTemp;
+        // Initialize theme based on saved preference
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            document.documentElement.setAttribute('data-bs-theme', savedTheme);
         }
+        
+        // Initialize model interaction area with welcome message
+        if (modelInteractionContent) {
+            updateModelInteraction('Welcome to GenCertify! I can help you with your certification journey. Ask me anything about the current section.');
+        }
+        
+        // Show welcome message
+        showAlert('Welcome to GenCertify! Start by entering your organization details.', 'info');
     }
     
     // Call initApp on page load
     initApp();
+
+    // Add this function to check if there are documents and show/hide the message accordingly
+    function updateDocumentsVisibility() {
+        const documentsTable = document.getElementById('uploaded-documents');
+        const noDocumentsMessage = document.getElementById('no-documents-message');
+        
+        if (!documentsTable || !noDocumentsMessage) return;
+        
+        // Check if there are any rows in the table (excluding header)
+        if (documentsTable.children.length === 0) {
+            noDocumentsMessage.style.display = 'block';
+        } else {
+            noDocumentsMessage.style.display = 'none';
+        }
+    }
+
+    // Call this function when the page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        updateDocumentsVisibility();
+        
+        // Also call it whenever documents are added or removed
+        // This assumes you have a function that adds documents to the table
+        // You would need to call updateDocumentsVisibility() after adding or removing documents
+    });
+
+    // Add this to your existing document upload form submission handler
+    document.getElementById('document-upload-form')?.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Your existing code to handle document upload
+        // ...
+        
+        // After successfully adding a document to the table, update visibility
+        updateDocumentsVisibility();
+    });
 }); 

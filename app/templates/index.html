@@ -2,37 +2,8 @@
 
 {% block content %}
 <div class="row">
-    <!-- Left Sidebar Navigation -->
-    <div class="col-md-3 mb-4">
-        <div class="card">
-            <div class="card-header bg-primary text-white">
-                <h5 class="mb-0"><i class="fas fa-tasks me-2"></i>Workflow</h5>
-            </div>
-            <div class="list-group list-group-flush">
-                <a href="#organization-section" class="list-group-item list-group-item-action">
-                    <i class="fas fa-building"></i> Organization
-                </a>
-                <a href="#certification-section" class="list-group-item list-group-item-action disabled">
-                    <i class="fas fa-certificate"></i> Certifications
-                </a>
-                <a href="#document-section" class="list-group-item list-group-item-action disabled">
-                    <i class="fas fa-file-upload"></i> Documents
-                </a>
-                <a href="#chat-section" class="list-group-item list-group-item-action disabled">
-                    <i class="fas fa-comments"></i> Chat Assistant
-                </a>
-                <a href="#evaluation-section" class="list-group-item list-group-item-action disabled">
-                    <i class="fas fa-tasks"></i> Evaluation
-                </a>
-                <a href="#results-section" class="list-group-item list-group-item-action disabled">
-                    <i class="fas fa-chart-bar"></i> Results
-                </a>
-            </div>
-        </div>
-    </div>
-    
     <!-- Main Content Area -->
-    <div class="col-md-9">
+    <div class="col-12">
         <!-- Organization Section -->
         <section id="organization-section" class="content-section">
             <div class="card shadow-sm">
@@ -223,6 +194,16 @@
                                 <!-- Documents will be added here dynamically -->
                             </tbody>
                         </table>
+                        
+                        <!-- No documents message -->
+                        <div id="no-documents-message" class="text-center py-4">
+                            <i class="fas fa-file-upload fa-3x text-muted mb-3"></i>
+                            <p>No documents have been uploaded yet.</p>
+                            <p class="text-muted">You can upload documents directly or connect to cloud storage.</p>
+                            <a href="#settings-section" class="btn btn-outline-primary mt-2" data-section="settings-section" onclick="setTimeout(() => { document.getElementById('integrations-tab').click(); }, 100);">
+                                <i class="fas fa-plug me-2"></i>Connect to Cloud Storage
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>

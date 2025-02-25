@@ -1,3 +1,13 @@
+/* Import Virgil font */
+@font-face {
+  font-family: 'Virgil';
+  src: url('../fonts/Virgil.woff2') format('woff2'),
+       url('../fonts/Virgil.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* Variables for Light Mode */
 :root {
     --primary-color: #2c3e50;
@@ -15,6 +25,8 @@
     --chat-user-bg: #d1e7ff;
     --chat-assistant-bg: #ffffff;
     --chat-system-bg: #e9ecef;
+    --header-bg: #ffffff;
+    --sidebar-bg: #f8f9fa;
 }
 
 /* Variables for Dark Mode */
@@ -34,11 +46,13 @@
     --chat-user-bg: #34495e;
     --chat-assistant-bg: #2b3035;
     --chat-system-bg: #495057;
+    --header-bg: #343a40;
+    --sidebar-bg: #2b3035;
 }
 
 /* General Styles */
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Virgil', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: var(--bg-color);
     color: var(--text-color);
     transition: background-color 0.3s ease, color 0.3s ease;
@@ -47,8 +61,9 @@ body {
 /* Header Styles */
 header {
     box-shadow: 0 2px 4px var(--shadow-color);
-    background-color: var(--card-bg);
+    background-color: var(--header-bg);
     border-bottom: 1px solid var(--border-color);
+    transition: background-color 0.3s ease;
 }
 
 /* Card Styles */
@@ -69,9 +84,10 @@ header {
 
 /* Sidebar Styles */
 #sidebar {
-    background-color: var(--card-bg);
+    background-color: var(--sidebar-bg);
     border-right: 1px solid var(--border-color);
-    transition: background-color 0.3s ease;
+    transition: background-color 0.3s ease, width 0.3s ease;
+    z-index: 100;
 }
 
 #sidebar .nav-link {
@@ -100,6 +116,19 @@ header {
 
 .sidebar-footer {
     padding: 1rem 0;
+}
+
+/* Sidebar Resizer */
+.sidebar-resizer {
+    width: 5px;
+    height: 100%;
+    background-color: var(--border-color);
+    cursor: col-resize;
+    transition: background-color 0.3s ease;
+}
+
+.sidebar-resizer:hover {
+    background-color: var(--accent-color);
 }
 
 /* Navigation Styles */
@@ -189,6 +218,26 @@ header {
     border-color: var(--border-color);
 }
 
+/* Help button styles */
+#help-btn {
+    color: var(--text-muted);
+    border-color: var(--border-color);
+}
+
+#help-btn:hover {
+    background-color: var(--border-color);
+    color: var(--text-color);
+}
+
+[data-bs-theme="dark"] #help-btn {
+    color: var(--text-color);
+}
+
+[data-bs-theme="dark"] #help-btn:hover {
+    background-color: var(--border-color);
+    color: #ffffff;
+}
+
 /* Chat Styles */
 .chat-container {
     height: 300px;
@@ -233,9 +282,41 @@ header {
     word-wrap: break-word;
 }
 
+/* Chat Input Container */
 .chat-input-container {
     background-color: var(--card-bg);
     border-top: 1px solid var(--border-color);
+    padding: 0.75rem 1rem;
+    width: 100%;
+}
+
+.chat-input-container form {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.chat-input-container input {
+    flex-grow: 1;
+    border-radius: 1.5rem;
+    padding: 0.75rem 1.25rem;
+    background-color: var(--input-bg);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+}
+
+.chat-input-container button {
+    border-radius: 1.5rem;
+    padding: 0.75rem 1.5rem;
+    margin-left: 0.5rem;
+    background-color: var(--primary-color);
+    color: #ffffff;
+    border: none;
+    font-weight: 500;
+}
+
+.chat-input-container button:hover {
+    background-color: var(--primary-dark);
 }
 
 /* Progress Bar Styles */
@@ -329,6 +410,24 @@ footer a:hover {
     background-color: var(--primary-color) !important;
 }
 
+/* Settings Icon */
+#settings-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    color: var(--text-muted);
+    transition: all 0.2s ease;
+}
+
+#settings-btn:hover {
+    background-color: var(--border-color);
+    color: var(--primary-color);
+    transform: rotate(30deg);
+}
+
 /* Theme Toggle */
 .theme-toggle {
     cursor: pointer;
@@ -342,6 +441,35 @@ footer a:hover {
 
 .theme-toggle:hover {
     background-color: var(--border-color);
+}
+
+/* Sun icon in yellow color */
+.fa-sun {
+    color: #FFD700; /* Gold/yellow color for the sun icon */
+}
+
+/* Theme Icon */
+.theme-icon {
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    color: var(--text-muted);
+}
+
+.theme-icon:hover {
+    transform: rotate(30deg);
+    color: var(--primary-color);
+}
+
+/* Sun icon in yellow color */
+.fa-sun {
+    color: #FFD700; /* Gold/yellow color for the sun icon */
+}
+
+[data-bs-theme="dark"] .theme-icon:hover {
+    color: #FFD700;
 }
 
 /* Content Section Styles */
@@ -367,6 +495,19 @@ footer a:hover {
     
     .container-fluid.flex-grow-1.d-flex {
         flex-direction: column;
+    }
+    
+    .model-interaction-content {
+        min-height: 100px;
+        padding: 1rem;
+    }
+    
+    .chat-input-container input {
+        padding: 0.5rem 1rem;
+    }
+    
+    .chat-input-container button {
+        padding: 0.5rem 1rem;
     }
 }
 
@@ -465,6 +606,19 @@ footer a:hover {
         padding: 0.5rem;
         border-top: 1px solid var(--border-color);
     }
+    
+    .model-interaction-content {
+        min-height: 120px;
+        padding: 1rem;
+    }
+    
+    .chat-input-container input {
+        padding: 0.5rem 1rem;
+    }
+    
+    .chat-input-container button {
+        padding: 0.5rem 1rem;
+    }
 }
 
 /* Add styles for extra small devices */
@@ -522,4 +676,114 @@ footer a:hover {
         height: 30px;
         font-size: 0.9rem;
     }
+}
+
+/* Main content layout */
+.flex-grow-1.d-flex.flex-column {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+main.flex-grow-1 {
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.content-container {
+    overflow-y: auto;
+    flex: 1;
+    padding-bottom: 1rem;
+}
+
+/* Model Interaction Styles */
+.model-interaction-container {
+    background-color: var(--card-bg);
+    border-top: 1px solid var(--border-color);
+    padding: 0.75rem 1rem;
+    width: 100%;
+}
+
+.model-interaction-content {
+    min-height: 120px;
+    max-height: 200px;
+    overflow-y: auto;
+    border-radius: 0.75rem;
+    background-color: #1a1a1a;
+    color: #ffffff;
+    font-family: 'Virgil', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+[data-bs-theme="light"] .model-interaction-content {
+    background-color: #1a1a1a;
+    color: #ffffff;
+}
+
+[data-bs-theme="dark"] .model-interaction-content {
+    background-color: #000000;
+    color: #ffffff;
+}
+
+.model-interaction-container .card {
+    border: none;
+    background-color: transparent;
+    box-shadow: none;
+}
+
+.model-interaction-container .card-body {
+    padding: 0;
+}
+
+.model-interaction-container h5 {
+    font-family: 'Virgil', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: var(--text-color);
+}
+
+/* Typing Indicator */
+.typing-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 40px;
+}
+
+.typing-indicator span {
+    height: 10px;
+    width: 10px;
+    margin: 0 2px;
+    background-color: #ffffff;
+    border-radius: 50%;
+    display: inline-block;
+    animation: typing-bounce 1.4s infinite ease-in-out both;
+}
+
+.typing-indicator span:nth-child(1) {
+    animation-delay: -0.32s;
+}
+
+.typing-indicator span:nth-child(2) {
+    animation-delay: -0.16s;
+}
+
+@keyframes typing-bounce {
+    0%, 80%, 100% { 
+        transform: scale(0);
+    } 
+    40% { 
+        transform: scale(1.0);
+    }
+}
+
+/* Model Response */
+.model-response {
+    white-space: pre-wrap;
+    line-height: 1.5;
+    text-align: center;
+    font-size: 1.1rem;
 } 

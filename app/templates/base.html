@@ -23,22 +23,16 @@
     {% block extra_css %}{% endblock %}
 </head>
 <body class="d-flex flex-column vh-100">
-    <header class="bg-white py-2 border-bottom">
+    <header class="py-2 border-bottom">
         <div class="container-fluid">
             <div class="d-flex align-items-center justify-content-between">
                 <a href="/" class="d-flex align-items-center text-decoration-none">
                     <img src="{{ url_for('static', path='img/logo.svg') }}" alt="GenCertify Logo" height="40">
                 </a>
                 <div>
-                    <button id="theme-toggle" class="btn btn-outline-secondary me-2" title="Toggle dark/light mode">
-                        <i class="fas fa-moon"></i>
-                    </button>
-                    <a href="#settings-section" id="settings-btn" class="btn btn-outline-secondary me-2" data-section="settings-section">
-                        <i class="fas fa-cog"></i> Settings
+                    <a href="#settings-section" id="settings-btn" class="me-2" data-section="settings-section">
+                        <i class="fas fa-cog fa-lg"></i>
                     </a>
-                    <button id="help-btn" class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#helpModal">
-                        <i class="fas fa-question-circle"></i> Help
-                    </button>
                     <a href="/login" class="btn btn-primary">
                         <i class="fas fa-sign-in-alt"></i> Login
                     </a>
@@ -49,8 +43,8 @@
     
     <div class="container-fluid flex-grow-1 d-flex p-0">
         <!-- Left Navigation Sidebar -->
-        <nav id="sidebar" class="bg-light border-end p-3" style="width: 250px; min-height: 100%;">
-            <div class="position-sticky">
+        <nav id="sidebar" class="border-end p-3" style="width: 250px; min-height: 100%;">
+            <div class="position-sticky d-flex flex-column h-100">
                 <ul class="nav flex-column">
                     <li class="nav-item mb-2">
                         <a href="#organization-section" class="nav-link active" data-section="organization-section">
@@ -65,6 +59,11 @@
                     <li class="nav-item mb-2">
                         <a href="#certifications-section" class="nav-link" data-section="certifications-section">
                             <i class="fas fa-certificate me-2"></i> Certifications
+                        </a>
+                    </li>
+                    <li class="nav-item mb-2">
+                        <a href="#workflow-section" class="nav-link" data-section="workflow-section">
+                            <i class="fas fa-tasks me-2"></i> Workflow
                         </a>
                     </li>
                     <li class="nav-item mb-2">
@@ -86,7 +85,7 @@
                 
                 <hr>
                 
-                <div class="sidebar-footer">
+                <div class="sidebar-footer mt-auto">
                     <div class="d-flex justify-content-between align-items-center">
                         <span class="text-muted small">Current Model:</span>
                         <span class="badge bg-primary" id="current-model">GPT-4o</span>
@@ -94,36 +93,51 @@
                     <div class="progress mt-2" style="height: 5px;">
                         <div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
                     </div>
+                    <div class="mt-3 text-center">
+                        <i id="theme-toggle" class="fas fa-moon theme-icon" title="Toggle dark/light mode"></i>
+                    </div>
                 </div>
             </div>
         </nav>
         
+        <!-- Resizer for sidebar -->
+        <div id="sidebar-resizer" class="sidebar-resizer"></div>
+        
         <!-- Main Content Area -->
-        <main class="flex-grow-1 d-flex flex-column">
-            <div class="alert-container position-fixed top-0 end-0 p-3" style="z-index: 1050;"></div>
+        <div class="flex-grow-1 d-flex flex-column">
+            <main class="flex-grow-1 d-flex flex-column">
+                <div class="alert-container position-fixed top-0 end-0 p-3" style="z-index: 1050;"></div>
+                
+                <!-- Content Sections -->
+                <div class="content-container flex-grow-1 p-3 overflow-auto">
+                    {% block content %}{% endblock %}
+                </div>
+            </main>
             
-            <!-- Content Sections -->
-            <div class="content-container flex-grow-1 p-3 overflow-auto">
-                {% block content %}{% endblock %}
+            <!-- Model Interaction Area -->
+            <div class="model-interaction-container border-top">
+                <div id="model-interaction-content" class="model-interaction-content">
+                    <!-- Model responses will be displayed here -->
+                </div>
             </div>
             
             <!-- Chat Input Area -->
-            <div class="chat-input-container p-3 border-top bg-light">
+            <div class="chat-input-container border-top">
                 <form id="chat-form" class="d-flex">
-                    <input type="text" id="chat-input" class="form-control me-2" placeholder="Ask about the current section..." aria-label="Chat message">
-                    <button class="btn btn-primary" type="submit">
-                        <i class="fas fa-paper-plane"></i>
+                    <input type="text" id="chat-input" placeholder="Chat Message" aria-label="Chat message">
+                    <button type="submit">
+                        Send
                     </button>
                 </form>
             </div>
-        </main>
+        </div>
     </div>
     
     <!-- Help Modal -->
     <div class="modal fade" id="helpModal" tabindex="-1" aria-labelledby="helpModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <div class="modal-header bg-light">
+                <div class="modal-header">
                     <h5 class="modal-title" id="helpModalLabel">
                         <i class="fas fa-question-circle text-primary me-2"></i>
                         How to Use GenCertify
@@ -183,8 +197,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Theme toggle functionality
-            const themeToggleBtn = document.getElementById('theme-toggle');
-            const themeIcon = themeToggleBtn.querySelector('i');
+            const themeToggleIcon = document.getElementById('theme-toggle');
             const htmlElement = document.documentElement;
             
             // Check for saved theme preference or use preferred color scheme
@@ -200,8 +213,8 @@
                 updateThemeIcon(initialTheme);
             }
             
-            // Toggle theme when button is clicked
-            themeToggleBtn.addEventListener('click', function() {
+            // Toggle theme when icon is clicked
+            themeToggleIcon.addEventListener('click', function() {
                 const currentTheme = htmlElement.getAttribute('data-bs-theme');
                 const newTheme = currentTheme === 'light' ? 'dark' : 'light';
                 
@@ -212,11 +225,11 @@
             
             function updateThemeIcon(theme) {
                 if (theme === 'dark') {
-                    themeIcon.classList.remove('fa-moon');
-                    themeIcon.classList.add('fa-sun');
+                    themeToggleIcon.classList.remove('fa-moon');
+                    themeToggleIcon.classList.add('fa-sun');
                 } else {
-                    themeIcon.classList.remove('fa-sun');
-                    themeIcon.classList.add('fa-moon');
+                    themeToggleIcon.classList.remove('fa-sun');
+                    themeToggleIcon.classList.add('fa-moon');
                 }
             }
             
