@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: gencertify-app
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+      - ./logs:/app/logs
+    env_file:
+      - .env
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    restart: unless-stopped
+    networks:
+      - gencertify-network
+
+  # Uncomment to add a local emulator for Firestore if needed
+  # firestore-emulator:
+  #   image: gcr.io/google.com/cloudsdktool/google-cloud-cli:emulators
+  #   container_name: gencertify-firestore-emulator
+  #   ports:
+  #     - "8080:8080"
+  #   command: gcloud beta emulators firestore start --host-port=0.0.0.0:8080
+  #   environment:
+  #     - FIRESTORE_PROJECT_ID=gencertify-local
+  #   networks:
+  #     - gencertify-network
+
+networks:
+  gencertify-network:
+    driver: bridge 

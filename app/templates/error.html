@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Error - GenCertify{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Error</h5>
+            </div>
+            <div class="card-body text-center">
+                <div class="mb-4">
+                    <i class="fas fa-exclamation-circle text-danger" style="font-size: 4rem;"></i>
+                </div>
+                
+                <h4 class="mb-3">{{ status_code }}</h4>
+                <p class="lead mb-4">{{ message }}</p>
+                
+                <a href="/" class="btn btn-primary">
+                    <i class="fas fa-home me-2"></i>Return to Home
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
