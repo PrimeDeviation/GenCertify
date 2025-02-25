@@ -29,12 +29,12 @@ The application is automatically deployed using GitHub Actions whenever changes 
 
 ### Deployment Architecture
 
-The application uses Workload Identity Federation to securely authenticate GitHub Actions with Google Cloud Platform. This modern approach eliminates the need for storing service account keys in GitHub Secrets and improves security by:
+The application uses a dedicated service account with a key stored securely in GitHub Secrets to authenticate GitHub Actions with Google Cloud Platform. This approach:
 
-1. Using short-lived credentials
-2. Establishing identity-based trust between GitHub Actions and GCP
-3. Following the principle of least privilege
-4. Enabling fine-grained access control
+1. Uses a dedicated service account with minimal permissions
+2. Follows the principle of least privilege
+3. Enables reliable CI/CD deployments
+4. Simplifies the authentication process
 
 ## Setup
 
