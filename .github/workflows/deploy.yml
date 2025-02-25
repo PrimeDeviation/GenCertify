@@ -14,33 +14,36 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
 
+    # These permissions are required for Workload Identity Federation
     permissions:
       contents: 'read'
       id-token: 'write'
 
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Authentication using Workload Identity Federation
-      - name: Google Auth
-        id: auth
-        uses: google-github-actions/auth@v1
+      # Authenticate to Google Cloud using Workload Identity Federation
+      - id: auth
+        name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
         with:
-          workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
-          service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+          # Using an explicit token format to avoid ambiguity
+          token_format: 'access_token'
+          # Using your existing Workload Identity Federation provider
+          workload_identity_provider: 'projects/235850710154/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider'
+          # Using the GitHub Actions service account that's already configured
+          service_account: 'github-actions@gencertify.iam.gserviceaccount.com'
           project_id: ${{ env.PROJECT_ID }}
 
       # Set up gcloud CLI
       - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v1
-        with:
-          project_id: ${{ env.PROJECT_ID }}
+        uses: google-github-actions/setup-gcloud@v2
 
-      # Deploy to Cloud Run using the deploy-cloudrun action
+      # Deploy to Cloud Run using source-based deployment (matches your working manual command)
       - name: Deploy to Cloud Run
         id: deploy
-        uses: google-github-actions/deploy-cloudrun@v1
+        uses: google-github-actions/deploy-cloudrun@v2
         with:
           service: ${{ env.SERVICE_NAME }}
           region: ${{ env.REGION }}
@@ -68,6 +71,7 @@ jobs:
             OPENAI_API_KEY=openai-api-key:latest
             ANTHROPIC_API_KEY=anthropic-api-key:latest
 
-      # Show the deployed URL
-      - name: Show Output
-        run: echo ${{ steps.deploy.outputs.url }}
+      # Display deployed service URL
+      - name: Display Service URL
+        run: |
+          echo "Service URL: ${{ steps.deploy.outputs.url }}"
