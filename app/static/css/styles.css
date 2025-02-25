@@ -1,8 +1,8 @@
 /* Import Virgil font */
 @font-face {
   font-family: 'Virgil';
-  src: url('../fonts/Virgil.woff2') format('woff2'),
-       url('../fonts/Virgil.ttf') format('truetype');
+  src: url('/static/fonts/Virgil.woff2') format('woff2'),
+       url('/static/fonts/Virgil.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
   font-display: swap;
@@ -288,6 +288,9 @@ header {
     border-top: 1px solid var(--border-color);
     padding: 0.75rem 1rem;
     width: 100%;
+    display: block !important;
+    position: relative;
+    z-index: 10;
 }
 
 .chat-input-container form {
@@ -703,6 +706,9 @@ main.flex-grow-1 {
     border-top: 1px solid var(--border-color);
     padding: 0.75rem 1rem;
     width: 100%;
+    display: block !important;
+    position: relative;
+    z-index: 10;
 }
 
 .model-interaction-content {
@@ -712,7 +718,7 @@ main.flex-grow-1 {
     border-radius: 0.75rem;
     background-color: #1a1a1a;
     color: #ffffff;
-    font-family: 'Virgil', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Virgil', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
     padding: 1.5rem;
     display: flex;
     align-items: center;
@@ -786,4 +792,142 @@ main.flex-grow-1 {
     line-height: 1.5;
     text-align: center;
     font-size: 1.1rem;
+    font-family: 'Virgil', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+}
+
+/* Mobile Navigation Styles */
+.navbar-toggler {
+    border: none;
+    background: transparent;
+    padding: 0.5rem;
+    border-radius: 0.375rem;
+    color: var(--text-color);
+    transition: all 0.2s ease;
+}
+
+.navbar-toggler:hover {
+    background-color: var(--border-color);
+}
+
+.mobile-nav-container {
+    border-right: 1px solid var(--border-color);
+    height: 100%;
+    overflow-y: auto;
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from { transform: translateX(-100%); }
+    to { transform: translateX(0); }
+}
+
+.mobile-nav-link {
+    color: var(--text-color);
+    border-radius: 0.375rem;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.25rem;
+    transition: all 0.2s ease;
+}
+
+.mobile-nav-link:hover {
+    background-color: var(--primary-light);
+    color: #ffffff;
+}
+
+.mobile-nav-link.active {
+    background-color: var(--primary-color);
+    color: #ffffff;
+}
+
+/* Chat Section Styles for Mobile */
+#chat-section .card {
+    border-radius: 0.5rem;
+    overflow: hidden;
+    height: calc(100vh - 120px);
+    display: flex;
+    flex-direction: column;
+}
+
+#chat-section .card-body {
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+#chat-section .chat-container {
+    flex: 1;
+    overflow-y: auto;
+    border: none;
+    border-radius: 0;
+}
+
+#chat-section .model-interaction-container {
+    padding: 0.5rem;
+}
+
+#chat-section .model-interaction-content {
+    min-height: 80px;
+    max-height: 120px;
+}
+
+#chat-section .chat-input-container {
+    padding: 0.5rem;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    /* Header adjustments */
+    header {
+        position: sticky;
+        top: 0;
+        z-index: 1030;
+    }
+    
+    /* Hide sidebar on mobile */
+    #sidebar {
+        display: none;
+    }
+    
+    /* Full width content on mobile */
+    .content-container {
+        padding: 0.5rem;
+    }
+    
+    /* Chat message adjustments */
+    .chat-message {
+        max-width: 90%;
+    }
+    
+    /* Card adjustments for mobile */
+    .card {
+        margin-bottom: 0.75rem;
+    }
+    
+    /* Chat section specific styles */
+    #chat-section {
+        padding: 0;
+        margin: 0;
+        height: calc(100vh - 56px);
+    }
+    
+    #chat-section .card {
+        border-radius: 0;
+        border-left: none;
+        border-right: none;
+        height: 100%;
+    }
+    
+    /* Avatar adjustments for mobile */
+    .avatar {
+        width: 30px;
+        height: 30px;
+        font-size: 0.9rem;
+    }
+    
+    /* Make sure the model interaction area is visible on mobile */
+    .model-interaction-container.d-md-none,
+    .chat-input-container.d-md-none {
+        display: block !important;
+    }
 } 

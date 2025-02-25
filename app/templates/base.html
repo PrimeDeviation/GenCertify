@@ -11,6 +11,22 @@
     <!-- Favicon -->
     <link rel="icon" href="{{ url_for('static', path='img/favicon.svg') }}" type="image/svg+xml">
     
+    <!-- Preload Fonts -->
+    <link rel="preload" href="/static/fonts/Virgil.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/static/fonts/Virgil.ttf" as="font" type="font/ttf" crossorigin>
+    
+    <!-- Direct Font Loading -->
+    <style>
+        @font-face {
+            font-family: 'Virgil';
+            src: url('/static/fonts/Virgil.woff2') format('woff2'),
+                 url('/static/fonts/Virgil.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap;
+        }
+    </style>
+    
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     
@@ -26,10 +42,20 @@
     <header class="py-2 border-bottom">
         <div class="container-fluid">
             <div class="d-flex align-items-center justify-content-between">
-                <a href="/" class="d-flex align-items-center text-decoration-none">
-                    <img src="{{ url_for('static', path='img/logo.svg') }}" alt="GenCertify Logo" height="40">
-                </a>
+                <div class="d-flex align-items-center">
+                    <!-- Mobile menu toggle button -->
+                    <button class="navbar-toggler d-md-none me-2" type="button" id="mobile-nav-toggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <a href="/" class="d-flex align-items-center text-decoration-none">
+                        <img src="{{ url_for('static', path='img/logo.svg') }}" alt="GenCertify Logo" height="40">
+                    </a>
+                </div>
                 <div>
+                    <!-- Chat link for mobile -->
+                    <a href="#chat-section" id="mobile-chat-link" class="btn btn-outline-primary me-2 d-md-none" data-section="chat-section">
+                        <i class="fas fa-comments"></i>
+                    </a>
                     <a href="#settings-section" id="settings-btn" class="me-2" data-section="settings-section">
                         <i class="fas fa-cog fa-lg"></i>
                     </a>
@@ -42,8 +68,8 @@
     </header>
     
     <div class="container-fluid flex-grow-1 d-flex p-0">
-        <!-- Left Navigation Sidebar -->
-        <nav id="sidebar" class="border-end p-3" style="width: 250px; min-height: 100%;">
+        <!-- Left Navigation Sidebar - Hidden on mobile by default -->
+        <nav id="sidebar" class="border-end p-3 d-none d-md-block" style="width: 250px; min-height: 100%;">
             <div class="position-sticky d-flex flex-column h-100">
                 <ul class="nav flex-column">
                     <li class="nav-item mb-2">
@@ -76,6 +102,12 @@
                             <i class="fas fa-chart-bar me-2"></i> Results
                         </a>
                     </li>
+                    <!-- Chat link in sidebar for desktop -->
+                    <li class="nav-item mb-2 d-none d-md-block">
+                        <a href="#chat-section" class="nav-link" data-section="chat-section">
+                            <i class="fas fa-comments me-2"></i> Chat
+                        </a>
+                    </li>
                     <li class="nav-item mb-2">
                         <a href="#settings-section" class="nav-link" data-section="settings-section">
                             <i class="fas fa-cog me-2"></i> Settings
@@ -100,8 +132,68 @@
             </div>
         </nav>
         
-        <!-- Resizer for sidebar -->
-        <div id="sidebar-resizer" class="sidebar-resizer"></div>
+        <!-- Mobile Navigation Overlay -->
+        <div id="mobile-nav-overlay" class="d-md-none position-fixed top-0 start-0 w-100 h-100 bg-dark bg-opacity-75 d-none" style="z-index: 1040;">
+            <div class="mobile-nav-container bg-body p-3" style="width: 80%; max-width: 300px; height: 100%; overflow-y: auto;">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="mb-0">Menu</h5>
+                    <button type="button" class="btn-close" id="mobile-nav-close"></button>
+                </div>
+                <ul class="nav flex-column">
+                    <li class="nav-item mb-2">
+                        <a href="#organization-section" class="nav-link active mobile-nav-link" data-section="organization-section">
+                            <i class="fas fa-building me-2"></i> Organization
+                        </a>
+                    </li>
+                    <li class="nav-item mb-2">
+                        <a href="#documents-section" class="nav-link mobile-nav-link" data-section="documents-section">
+                            <i class="fas fa-file-upload me-2"></i> Documents
+                        </a>
+                    </li>
+                    <li class="nav-item mb-2">
+                        <a href="#certifications-section" class="nav-link mobile-nav-link" data-section="certifications-section">
+                            <i class="fas fa-certificate me-2"></i> Certifications
+                        </a>
+                    </li>
+                    <li class="nav-item mb-2">
+                        <a href="#workflow-section" class="nav-link mobile-nav-link" data-section="workflow-section">
+                            <i class="fas fa-tasks me-2"></i> Workflow
+                        </a>
+                    </li>
+                    <li class="nav-item mb-2">
+                        <a href="#evaluation-section" class="nav-link mobile-nav-link" data-section="evaluation-section">
+                            <i class="fas fa-tasks me-2"></i> Evaluation
+                        </a>
+                    </li>
+                    <li class="nav-item mb-2">
+                        <a href="#results-section" class="nav-link mobile-nav-link" data-section="results-section">
+                            <i class="fas fa-chart-bar me-2"></i> Results
+                        </a>
+                    </li>
+                    <li class="nav-item mb-2">
+                        <a href="#chat-section" class="nav-link mobile-nav-link" data-section="chat-section">
+                            <i class="fas fa-comments me-2"></i> Chat
+                        </a>
+                    </li>
+                    <li class="nav-item mb-2">
+                        <a href="#settings-section" class="nav-link mobile-nav-link" data-section="settings-section">
+                            <i class="fas fa-cog me-2"></i> Settings
+                        </a>
+                    </li>
+                </ul>
+                <hr>
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="text-muted small">Current Model:</span>
+                    <span class="badge bg-primary">GPT-4o</span>
+                </div>
+                <div class="mt-3 text-center">
+                    <i class="fas fa-moon theme-icon mobile-theme-toggle" title="Toggle dark/light mode"></i>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Resizer for sidebar - only visible on desktop -->
+        <div id="sidebar-resizer" class="sidebar-resizer d-none d-md-block"></div>
         
         <!-- Main Content Area -->
         <div class="flex-grow-1 d-flex flex-column">
@@ -112,20 +204,56 @@
                 <div class="content-container flex-grow-1 p-3 overflow-auto">
                     {% block content %}{% endblock %}
                 </div>
+                
+                <!-- Chat Section - Separate section for mobile -->
+                <div id="chat-section" class="content-section d-none">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Chat</h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="chat-messages" class="chat-container mb-3">
+                                <!-- Chat messages will appear here -->
+                                <div class="chat-message system-message">
+                                    <div class="message-content">
+                                        <p>Welcome to GenCertify! How can I help you today?</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Model Interaction Area - Only visible in chat section on mobile -->
+                            <div class="model-interaction-container border-top d-md-none">
+                                <div id="mobile-model-interaction-content" class="model-interaction-content">
+                                    <!-- Model responses will be displayed here -->
+                                </div>
+                            </div>
+                            
+                            <!-- Chat Input - Only visible in chat section on mobile -->
+                            <div class="chat-input-container border-top d-md-none">
+                                <form id="mobile-chat-form" class="d-flex">
+                                    <input type="text" id="mobile-chat-input" placeholder="Chat Message" aria-label="Chat message">
+                                    <button type="submit" id="mobile-chat-submit-btn">
+                                        Send
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </main>
             
-            <!-- Model Interaction Area -->
-            <div class="model-interaction-container border-top">
+            <!-- Model Interaction Area - Hidden on mobile when not in chat section -->
+            <div class="model-interaction-container border-top d-none d-md-block">
                 <div id="model-interaction-content" class="model-interaction-content">
                     <!-- Model responses will be displayed here -->
                 </div>
             </div>
             
-            <!-- Chat Input Area -->
-            <div class="chat-input-container border-top">
+            <!-- Chat Input Area - Hidden on mobile when not in chat section -->
+            <div class="chat-input-container border-top d-none d-md-block">
                 <form id="chat-form" class="d-flex">
                     <input type="text" id="chat-input" placeholder="Chat Message" aria-label="Chat message">
-                    <button type="submit">
+                    <button type="submit" id="chat-submit-btn">
                         Send
                     </button>
                 </form>
@@ -198,6 +326,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             // Theme toggle functionality
             const themeToggleIcon = document.getElementById('theme-toggle');
+            const mobileThemeToggleIcon = document.querySelector('.mobile-theme-toggle');
             const htmlElement = document.documentElement;
             
             // Check for saved theme preference or use preferred color scheme
@@ -214,24 +343,73 @@
             }
             
             // Toggle theme when icon is clicked
-            themeToggleIcon.addEventListener('click', function() {
+            themeToggleIcon.addEventListener('click', toggleTheme);
+            if (mobileThemeToggleIcon) {
+                mobileThemeToggleIcon.addEventListener('click', toggleTheme);
+            }
+            
+            function toggleTheme() {
                 const currentTheme = htmlElement.getAttribute('data-bs-theme');
                 const newTheme = currentTheme === 'light' ? 'dark' : 'light';
                 
                 htmlElement.setAttribute('data-bs-theme', newTheme);
                 localStorage.setItem('theme', newTheme);
                 updateThemeIcon(newTheme);
-            });
+            }
             
             function updateThemeIcon(theme) {
                 if (theme === 'dark') {
                     themeToggleIcon.classList.remove('fa-moon');
                     themeToggleIcon.classList.add('fa-sun');
+                    if (mobileThemeToggleIcon) {
+                        mobileThemeToggleIcon.classList.remove('fa-moon');
+                        mobileThemeToggleIcon.classList.add('fa-sun');
+                    }
                 } else {
                     themeToggleIcon.classList.remove('fa-sun');
                     themeToggleIcon.classList.add('fa-moon');
+                    if (mobileThemeToggleIcon) {
+                        mobileThemeToggleIcon.classList.remove('fa-sun');
+                        mobileThemeToggleIcon.classList.add('fa-moon');
+                    }
                 }
             }
+            
+            // Mobile navigation toggle
+            const mobileNavToggle = document.getElementById('mobile-nav-toggle');
+            const mobileNavOverlay = document.getElementById('mobile-nav-overlay');
+            const mobileNavClose = document.getElementById('mobile-nav-close');
+            const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
+            
+            if (mobileNavToggle) {
+                mobileNavToggle.addEventListener('click', function() {
+                    mobileNavOverlay.classList.remove('d-none');
+                    document.body.style.overflow = 'hidden'; // Prevent scrolling
+                });
+            }
+            
+            if (mobileNavClose) {
+                mobileNavClose.addEventListener('click', function() {
+                    mobileNavOverlay.classList.add('d-none');
+                    document.body.style.overflow = ''; // Restore scrolling
+                });
+            }
+            
+            // Close mobile nav when clicking outside
+            mobileNavOverlay.addEventListener('click', function(e) {
+                if (e.target === mobileNavOverlay) {
+                    mobileNavOverlay.classList.add('d-none');
+                    document.body.style.overflow = ''; // Restore scrolling
+                }
+            });
+            
+            // Close mobile nav when a link is clicked
+            mobileNavLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    mobileNavOverlay.classList.add('d-none');
+                    document.body.style.overflow = ''; // Restore scrolling
+                });
+            });
             
             // Section navigation
             const navLinks = document.querySelectorAll('.nav-link, [data-section]');
@@ -267,8 +445,131 @@
                     
                     // Update the URL hash
                     window.location.hash = targetSectionId;
+                    
+                    // Special handling for chat section on mobile
+                    if (targetSectionId === 'chat-section' && window.innerWidth < 768) {
+                        // Hide the desktop chat elements
+                        const desktopModelInteraction = document.querySelector('.model-interaction-container.d-none.d-md-block');
+                        const desktopChatInput = document.querySelector('.chat-input-container.d-none.d-md-block');
+                        
+                        if (desktopModelInteraction) desktopModelInteraction.classList.add('d-none');
+                        if (desktopChatInput) desktopChatInput.classList.add('d-none');
+                    }
                 });
             });
+            
+            // Sync mobile and desktop chat
+            const chatForm = document.getElementById('chat-form');
+            const mobileChatForm = document.getElementById('mobile-chat-form');
+            const chatInput = document.getElementById('chat-input');
+            const mobileChatInput = document.getElementById('mobile-chat-input');
+            const modelInteractionContent = document.getElementById('model-interaction-content');
+            const mobileModelInteractionContent = document.getElementById('mobile-model-interaction-content');
+            
+            if (chatForm && mobileChatForm) {
+                // Handle desktop chat form submission
+                chatForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const message = chatInput.value.trim();
+                    if (message) {
+                        handleChatMessage(message);
+                        chatInput.value = '';
+                    }
+                });
+                
+                // Handle mobile chat form submission
+                mobileChatForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const message = mobileChatInput.value.trim();
+                    if (message) {
+                        handleChatMessage(message);
+                        mobileChatInput.value = '';
+                    }
+                });
+                
+                // Function to handle chat messages and sync between desktop and mobile
+                function handleChatMessage(message) {
+                    // Add user message to chat
+                    addMessageToChat('user', message);
+                    
+                    // Show typing indicator in both model interaction areas
+                    showModelTypingIndicator();
+                    
+                    // Simulate API call to get model response
+                    setTimeout(function() {
+                        const response = `This is a response to: "${message}"`;
+                        updateModelInteraction(response);
+                        addMessageToChat('assistant', response);
+                    }, 1000);
+                }
+                
+                // Function to show typing indicator in model interaction areas
+                function showModelTypingIndicator() {
+                    const typingIndicator = '<div class="typing-indicator"><span></span><span></span><span></span></div>';
+                    if (modelInteractionContent) {
+                        modelInteractionContent.innerHTML = typingIndicator;
+                    }
+                    if (mobileModelInteractionContent) {
+                        mobileModelInteractionContent.innerHTML = typingIndicator;
+                    }
+                }
+                
+                // Function to update model interaction areas with response
+                function updateModelInteraction(content) {
+                    const contentElement = `<div class="model-response">${content}</div>`;
+                    
+                    if (modelInteractionContent) {
+                        modelInteractionContent.innerHTML = contentElement;
+                        modelInteractionContent.scrollTop = modelInteractionContent.scrollHeight;
+                    }
+                    
+                    if (mobileModelInteractionContent) {
+                        mobileModelInteractionContent.innerHTML = contentElement;
+                        mobileModelInteractionContent.scrollTop = mobileModelInteractionContent.scrollHeight;
+                    }
+                }
+                
+                // Function to add message to chat
+                function addMessageToChat(sender, message) {
+                    const chatMessages = document.getElementById('chat-messages');
+                    if (!chatMessages) return;
+                    
+                    const messageElement = document.createElement('div');
+                    messageElement.className = `chat-message ${sender}-message`;
+                    
+                    let avatar = '';
+                    let name = '';
+                    
+                    switch(sender) {
+                        case 'user':
+                            avatar = '<div class="avatar"><i class="fas fa-user"></i></div>';
+                            name = 'You';
+                            break;
+                        case 'assistant':
+                            avatar = '<div class="avatar"><i class="fas fa-robot"></i></div>';
+                            name = 'AI Assistant';
+                            break;
+                        case 'system':
+                            avatar = '<div class="avatar"><i class="fas fa-info-circle"></i></div>';
+                            name = 'System';
+                            break;
+                    }
+                    
+                    messageElement.innerHTML = `
+                        ${avatar}
+                        <div class="message-content">
+                            <div class="message-header">
+                                <span class="message-sender">${name}</span>
+                                <span class="message-time">${new Date().toLocaleTimeString()}</span>
+                            </div>
+                            <p>${message}</p>
+                        </div>
+                    `;
+                    
+                    chatMessages.appendChild(messageElement);
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                }
+            }
             
             // Alert function
             function showAlert(message, type = 'info') {
@@ -304,6 +605,26 @@
             } else {
                 // Default to first section
                 navLinks[0].click();
+            }
+            
+            // Initialize model interaction areas with welcome message
+            updateModelInteraction('Welcome to GenCertify! I can help you with your certification journey. Ask me anything about the current section.');
+            
+            function updateModelInteraction(content) {
+                const contentElement = `<div class="model-response">${content}</div>`;
+                
+                const modelInteractionContent = document.getElementById('model-interaction-content');
+                const mobileModelInteractionContent = document.getElementById('mobile-model-interaction-content');
+                
+                if (modelInteractionContent) {
+                    modelInteractionContent.innerHTML = contentElement;
+                    modelInteractionContent.scrollTop = modelInteractionContent.scrollHeight;
+                }
+                
+                if (mobileModelInteractionContent) {
+                    mobileModelInteractionContent.innerHTML = contentElement;
+                    mobileModelInteractionContent.scrollTop = mobileModelInteractionContent.scrollHeight;
+                }
             }
         });
     </script>

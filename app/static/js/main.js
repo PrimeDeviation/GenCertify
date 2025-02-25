@@ -20,6 +20,32 @@ document.addEventListener('DOMContentLoaded', function() {
     const chatInput = document.getElementById('chat-input');
     const chatContainer = document.getElementById('chat-container');
     
+    // Mobile Chat Interface
+    const mobileChatForm = document.getElementById('mobile-chat-form');
+    const mobileChatInput = document.getElementById('mobile-chat-input');
+    const chatMessages = document.getElementById('chat-messages');
+    
+    // Mobile Navigation
+    const mobileNavToggle = document.getElementById('mobile-nav-toggle');
+    const mobileNavOverlay = document.getElementById('mobile-nav-overlay');
+    const mobileNavClose = document.getElementById('mobile-nav-close');
+    const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
+    
+    // Model Interaction
+    const modelInteractionContent = document.getElementById('model-interaction-content');
+    const mobileModelInteractionContent = document.getElementById('mobile-model-interaction-content');
+    const modelInteractionContainer = document.querySelector('.model-interaction-container');
+    const chatInputContainer = document.querySelector('.chat-input-container');
+    
+    // Ensure model interaction and chat input are visible
+    if (modelInteractionContainer) {
+        modelInteractionContainer.style.display = 'block';
+    }
+    
+    if (chatInputContainer) {
+        chatInputContainer.style.display = 'block';
+    }
+    
     // Evaluation
     const evaluationForm = document.getElementById('evaluation-form');
     const evaluationProgress = document.getElementById('evaluation-progress');
@@ -45,19 +71,16 @@ document.addEventListener('DOMContentLoaded', function() {
     // Navigation Elements
     const navLinks = document.querySelectorAll('.nav-link');
     const sections = document.querySelectorAll('.content-section');
-    const chatMessages = document.getElementById('chat-messages');
     const currentSectionLabel = document.getElementById('current-section');
     
     // Theme Toggle
     const themeToggle = document.getElementById('theme-toggle');
+    const mobileThemeToggle = document.querySelector('.mobile-theme-toggle');
     
     // Sidebar Resizer
     const sidebar = document.getElementById('sidebar');
     const sidebarResizer = document.getElementById('sidebar-resizer');
     let isResizing = false;
-    
-    // Model Interaction
-    const modelInteractionContent = document.getElementById('model-interaction-content');
     
     // Event Listeners
     if (orgForm) {
@@ -70,6 +93,46 @@ document.addEventListener('DOMContentLoaded', function() {
     
     if (chatForm) {
         chatForm.addEventListener('submit', handleChatSubmit);
+    }
+    
+    // Mobile chat form
+    if (mobileChatForm) {
+        mobileChatForm.addEventListener('submit', handleMobileChatSubmit);
+    }
+    
+    // Mobile navigation toggle
+    if (mobileNavToggle) {
+        mobileNavToggle.addEventListener('click', function() {
+            mobileNavOverlay.classList.remove('d-none');
+            document.body.style.overflow = 'hidden'; // Prevent scrolling
+        });
+    }
+    
+    if (mobileNavClose) {
+        mobileNavClose.addEventListener('click', function() {
+            mobileNavOverlay.classList.add('d-none');
+            document.body.style.overflow = ''; // Restore scrolling
+        });
+    }
+    
+    // Close mobile nav when clicking outside
+    if (mobileNavOverlay) {
+        mobileNavOverlay.addEventListener('click', function(e) {
+            if (e.target === mobileNavOverlay) {
+                mobileNavOverlay.classList.add('d-none');
+                document.body.style.overflow = ''; // Restore scrolling
+            }
+        });
+    }
+    
+    // Close mobile nav when a link is clicked
+    if (mobileNavLinks) {
+        mobileNavLinks.forEach(link => {
+            link.addEventListener('click', function() {
+                mobileNavOverlay.classList.add('d-none');
+                document.body.style.overflow = ''; // Restore scrolling
+            });
+        });
     }
     
     if (evaluationForm) {
@@ -173,8 +236,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 currentSectionLabel.textContent = this.textContent.trim();
             }
             
+            // Special handling for chat section on mobile
+            if (targetId === 'chat-section' && window.innerWidth < 768) {
+                // Make sure the mobile chat elements are visible
+                const mobileChatSection = document.getElementById('chat-section');
+                if (mobileChatSection) {
+                    mobileChatSection.classList.remove('d-none');
+                }
+            }
+            
             // Clear chat messages when switching sections
-            if (chatMessages) {
+            if (chatMessages && targetId !== 'chat-section') {
                 chatMessages.innerHTML = '';
                 
                 // Add a welcome message for the new section
@@ -193,126 +265,73 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
+    // Mobile navigation links
+    if (mobileNavLinks) {
+        mobileNavLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Get the target section ID
+                const targetId = this.getAttribute('data-section');
+                
+                // Update active mobile nav link
+                mobileNavLinks.forEach(navLink => navLink.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Hide all sections and show the target section
+                sections.forEach(section => section.classList.add('d-none'));
+                document.getElementById(targetId).classList.remove('d-none');
+                
+                // Special handling for chat section
+                if (targetId === 'chat-section') {
+                    // Make sure the mobile chat elements are visible
+                    const mobileChatSection = document.getElementById('chat-section');
+                    if (mobileChatSection) {
+                        mobileChatSection.classList.remove('d-none');
+                    }
+                }
+            });
+        });
+    }
+    
     // Add event listener for theme toggle
     if (themeToggle) {
-        themeToggle.addEventListener('click', function() {
-            const currentTheme = document.documentElement.getAttribute('data-bs-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            
-            // Update theme
-            document.documentElement.setAttribute('data-bs-theme', newTheme);
-            
-            // Update toggle icon
-            this.innerHTML = newTheme === 'dark' ? 
+        themeToggle.addEventListener('click', toggleTheme);
+    }
+    
+    if (mobileThemeToggle) {
+        mobileThemeToggle.addEventListener('click', toggleTheme);
+    }
+    
+    function toggleTheme() {
+        const currentTheme = document.documentElement.getAttribute('data-bs-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        
+        // Update theme
+        document.documentElement.setAttribute('data-bs-theme', newTheme);
+        
+        // Update toggle icons
+        updateThemeIcons(newTheme);
+        
+        // Save preference
+        localStorage.setItem('theme', newTheme);
+        
+        // Show feedback
+        showAlert(`Theme switched to ${newTheme} mode`, 'info');
+    }
+    
+    function updateThemeIcons(theme) {
+        if (themeToggle) {
+            themeToggle.innerHTML = theme === 'dark' ? 
                 '<i class="fas fa-sun"></i>' : 
                 '<i class="fas fa-moon"></i>';
-            
-            // Save preference
-            localStorage.setItem('theme', newTheme);
-            
-            // Show feedback
-            showAlert(`Theme switched to ${newTheme} mode`, 'info');
-        });
-    }
-    
-    // Add event listeners for settings save
-    const aiModelSelect = document.getElementById('ai-model');
-    const temperatureRange = document.getElementById('temperature-range');
-    const saveSettingsBtn = document.getElementById('save-settings');
-    
-    if (aiModelSelect) {
-        aiModelSelect.addEventListener('change', function() {
-            localStorage.setItem('aiModel', this.value);
-        });
-    }
-    
-    if (temperatureRange) {
-        temperatureRange.addEventListener('input', function() {
-            const tempValue = document.getElementById('temperature-value');
-            if (tempValue) {
-                tempValue.textContent = this.value;
-            }
-            localStorage.setItem('temperature', this.value);
-        });
-    }
-    
-    if (saveSettingsBtn) {
-        saveSettingsBtn.addEventListener('click', function() {
-            // Get all settings values
-            const aiModel = document.getElementById('ai-model').value;
-            const temperature = document.getElementById('temperature-range').value;
-            
-            // Save to localStorage
-            localStorage.setItem('aiModel', aiModel);
-            localStorage.setItem('temperature', temperature);
-            
-            // Additional settings from other tabs
-            const username = document.getElementById('username')?.value;
-            const email = document.getElementById('email')?.value;
-            
-            if (username) localStorage.setItem('username', username);
-            if (email) localStorage.setItem('email', email);
-            
-            // Show success message
-            showAlert('Settings saved successfully!', 'success');
-        });
-    }
-    
-    // Add event listeners for sidebar resizing
-    if (sidebarResizer) {
-        sidebarResizer.addEventListener('mousedown', initResize);
-        document.addEventListener('mousemove', resize);
-        document.addEventListener('mouseup', stopResize);
-        
-        // Touch support for mobile
-        sidebarResizer.addEventListener('touchstart', initResize);
-        document.addEventListener('touchmove', resize);
-        document.addEventListener('touchend', stopResize);
-    }
-    
-    function initResize(e) {
-        isResizing = true;
-        document.body.style.cursor = 'col-resize';
-        document.body.style.userSelect = 'none';
-        
-        // Prevent text selection during resize
-        e.preventDefault();
-    }
-    
-    function resize(e) {
-        if (!isResizing) return;
-        
-        let clientX;
-        
-        // Check if it's a touch event or mouse event
-        if (e.type === 'touchmove') {
-            clientX = e.touches[0].clientX;
-        } else {
-            clientX = e.clientX;
         }
         
-        // Set minimum and maximum width
-        const minWidth = 150;
-        const maxWidth = window.innerWidth / 2;
-        
-        // Calculate new width
-        let newWidth = clientX;
-        
-        // Apply constraints
-        if (newWidth < minWidth) newWidth = minWidth;
-        if (newWidth > maxWidth) newWidth = maxWidth;
-        
-        // Apply new width
-        sidebar.style.width = newWidth + 'px';
-        
-        // Save the width preference
-        localStorage.setItem('sidebarWidth', newWidth);
-    }
-    
-    function stopResize() {
-        isResizing = false;
-        document.body.style.cursor = '';
-        document.body.style.userSelect = '';
+        if (mobileThemeToggle) {
+            mobileThemeToggle.innerHTML = theme === 'dark' ? 
+                '<i class="fas fa-sun"></i>' : 
+                '<i class="fas fa-moon"></i>';
+        }
     }
     
     // Organization Form Handler
@@ -450,10 +469,46 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
+    // Mobile Chat Submit Handler
+    async function handleMobileChatSubmit(e) {
+        e.preventDefault();
+        
+        const message = mobileChatInput.value.trim();
+        if (!message) return;
+        
+        // Add user message to chat
+        addMessageToChat('user', message);
+        
+        // Clear input
+        mobileChatInput.value = '';
+        
+        // Show typing indicator in model interaction area
+        showModelTypingIndicator();
+        
+        try {
+            // Simulate API call to get model response
+            const response = await simulateModelResponse(message, 'chat-section');
+            
+            // Display model response in the model interaction area
+            updateModelInteraction(response);
+            
+            // Also add the response to the chat
+            addMessageToChat('assistant', response);
+        } catch (error) {
+            console.error('Error getting model response:', error);
+            updateModelInteraction('Sorry, there was an error processing your request.');
+            addMessageToChat('system', 'Sorry, there was an error processing your request.');
+        }
+    }
+    
     // Function to show typing indicator in model interaction area
     function showModelTypingIndicator() {
         if (modelInteractionContent) {
             modelInteractionContent.innerHTML = '<div class="typing-indicator"><span></span><span></span><span></span></div>';
+        }
+        
+        if (mobileModelInteractionContent) {
+            mobileModelInteractionContent.innerHTML = '<div class="typing-indicator"><span></span><span></span><span></span></div>';
         }
     }
     
@@ -472,6 +527,21 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Scroll to the bottom of the content
             modelInteractionContent.scrollTop = modelInteractionContent.scrollHeight;
+        }
+        
+        if (mobileModelInteractionContent) {
+            // Clear any existing content
+            mobileModelInteractionContent.innerHTML = '';
+            
+            // Add the new content
+            const contentElement = document.createElement('div');
+            contentElement.className = 'model-response';
+            contentElement.textContent = content;
+            
+            mobileModelInteractionContent.appendChild(contentElement);
+            
+            // Scroll to the bottom of the content
+            mobileModelInteractionContent.scrollTop = mobileModelInteractionContent.scrollHeight;
         }
     }
     
@@ -503,6 +573,8 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Add message to chat
     function addMessageToChat(sender, message) {
+        if (!chatMessages) return;
+        
         const messageElement = document.createElement('div');
         messageElement.className = `chat-message ${sender}-message`;
         
@@ -514,7 +586,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 avatar = '<div class="avatar"><i class="fas fa-user"></i></div>';
                 name = 'You';
                 break;
-            case 'ai':
+            case 'assistant':
                 avatar = '<div class="avatar"><i class="fas fa-robot"></i></div>';
                 name = 'AI Assistant';
                 break;
@@ -1115,11 +1187,57 @@ document.addEventListener('DOMContentLoaded', function() {
         const savedTheme = localStorage.getItem('theme');
         if (savedTheme) {
             document.documentElement.setAttribute('data-bs-theme', savedTheme);
+            updateThemeIcons(savedTheme);
+        } else {
+            // Check for system preference
+            const prefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const initialTheme = prefersDarkMode ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-bs-theme', initialTheme);
+            updateThemeIcons(initialTheme);
         }
         
         // Initialize model interaction area with welcome message
-        if (modelInteractionContent) {
+        if (modelInteractionContent || mobileModelInteractionContent) {
+            // Make sure the container is visible
+            const modelInteractionContainer = document.querySelector('.model-interaction-container');
+            if (modelInteractionContainer) {
+                modelInteractionContainer.style.display = 'block';
+            }
+            
+            // Initialize with welcome message
             updateModelInteraction('Welcome to GenCertify! I can help you with your certification journey. Ask me anything about the current section.');
+        }
+        
+        // Initialize chat input container
+        const chatInputContainer = document.querySelector('.chat-input-container');
+        if (chatInputContainer) {
+            chatInputContainer.style.display = 'block';
+        }
+        
+        // Initialize mobile chat section
+        const chatSection = document.getElementById('chat-section');
+        if (chatSection && chatMessages) {
+            // Add a welcome message
+            const welcomeMessage = document.createElement('div');
+            welcomeMessage.className = 'chat-message system-message';
+            welcomeMessage.innerHTML = `
+                <div class="message-content">
+                    <p>Welcome to GenCertify! How can I help you today?</p>
+                </div>
+            `;
+            
+            // Only add if there are no messages yet
+            if (chatMessages.children.length === 0) {
+                chatMessages.appendChild(welcomeMessage);
+            }
+        }
+        
+        // Check if we're on mobile and should show the mobile menu
+        if (window.innerWidth < 768) {
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar) {
+                sidebar.classList.add('d-none');
+            }
         }
         
         // Show welcome message
