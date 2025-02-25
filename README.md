@@ -25,18 +25,16 @@ A Certification Readiness and Document Drafting Tool that evaluates a startup's 
 
 Check out the live demo at: https://gencertify-235850710154.us-central1.run.app/
 
-The application is automatically deployed using GitHub Actions whenever changes are pushed to the master branch. This CI/CD pipeline ensures the latest code is always available in production.
+The application is automatically deployed using GitHub Actions whenever changes are pushed to the master branch. This CI/CD pipeline ensures the latest code is always available in production. Changes are typically deployed within minutes of being pushed to the repository.
 
 ### Deployment Architecture
 
-The application uses service account key authentication for GitHub Actions to deploy to Google Cloud Platform. This approach:
+The application uses Workload Identity Federation to securely authenticate GitHub Actions with Google Cloud Platform. This modern approach eliminates the need for storing service account keys in GitHub Secrets and improves security by:
 
-1. Uses a dedicated service account with minimal permissions
-2. Stores service account key securely in GitHub Secrets
-3. Follows the principle of least privilege
-4. Enables automated CI/CD deployments
-5. Is compatible with organization-level security policies
-6. Simplifies the authentication process
+1. Using short-lived credentials
+2. Establishing identity-based trust between GitHub Actions and GCP
+3. Following the principle of least privilege
+4. Enabling fine-grained access control
 
 ## Setup
 
